@@ -11,15 +11,15 @@
     "update": "bunx buf dep update"
   },
   "dependencies": {
-    "@bufbuild/buf": "^1.72.0",
     "@bufbuild/protobuf": "^2.12.1",
-    "@bufbuild/protoc-gen-es": "^2.12.1",
     "@connectrpc/connect": "^2.1.2",
-    "@connectrpc/protoc-gen-connect-es": "^1.7.0",
     "@connectrpc/validate": "^0.2.0",
     "@repo/typescript-config": "*"
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.72.0",
+    "@bufbuild/protoc-gen-es": "^2.12.1",
+    "@connectrpc/protoc-gen-connect-es": "^1.7.0",
     "@types/bun": "latest"
   },
   "peerDependencies": {

@@ -2,21 +2,26 @@
   "name": "@repo/auth-service",
   "type": "module",
   "private": true,
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "db:generate": "bunx drizzle-kit generate",
+    "db:migrate": "bunx drizzle-kit migrate"
+  },
   "devDependencies": {
-    "@types/bun": "latest",
+    "bun-types": "latest",
     "eslint": "^9.39.1"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "@repo/eslint-config": "*",
-    "@repo/typescript-config": "*",
-    "@repo/protos": "*",
-    "@bufbuild/buf": "^1.72.0",
     "@bufbuild/protobuf": "^2.12.1",
-    "@bufbuild/protoc-gen-es": "^2.12.1",
     "@connectrpc/connect": "^2.1.2",
-    "@connectrpc/validate": "^0.2.0"
+    "@connectrpc/connect-node": "^2.1.2",
+    "@connectrpc/validate": "^0.2.0",
+    "@repo/eslint-config": "*",
+    "@repo/protos": "*",
+    "@repo/typescript-config": "*",
+    "zod": "^4.4.3"
   }
 }
