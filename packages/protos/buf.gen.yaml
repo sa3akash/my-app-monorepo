@@ -1,0 +1,26 @@
+version: v2
+plugins:
+  # ── TypeScript ──────────────────────────────────────────────────────────────
+
+  # Generate ES/TS message types  →  gen/ts/
+  - local: protoc-gen-es
+    out: gen/ts
+    include_imports: true
+    opt: target=ts
+
+  # Generate Connect-ES service stubs  →  gen/ts/
+  - local: protoc-gen-connect-es
+    out: gen/ts
+    opt: target=ts
+
+  # ── Go ──────────────────────────────────────────────────────────────────────
+
+  # Generate Go message types  →  gen/go/
+  - local: protoc-gen-go
+    out: gen/go
+    opt: paths=source_relative
+
+  # Generate Connect-Go service stubs  →  gen/go/
+  - local: protoc-gen-connect-go
+    out: gen/go
+    opt: paths=source_relative

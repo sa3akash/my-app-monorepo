@@ -1,0 +1,677 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+option go_package = "github.com/sa3akash/my-app-monorepo/proto/user/v1;userv1";
+
+// ===========================================================================
+// Enums
+// ===========================================================================
+
+enum Gender {
+  GENDER_UNSPECIFIED = 0;
+  GENDER_MALE        = 1;
+  GENDER_FEMALE      = 2;
+  GENDER_NON_BINARY  = 3;
+  GENDER_PREFER_NOT  = 4;
+}
+
+enum RelationshipStatus {
+  RELATIONSHIP_STATUS_UNSPECIFIED  = 0;
+  RELATIONSHIP_STATUS_SINGLE       = 1;
+  RELATIONSHIP_STATUS_IN_A_RELATION= 2;
+  RELATIONSHIP_STATUS_ENGAGED      = 3;
+  RELATIONSHIP_STATUS_MARRIED      = 4;
+  RELATIONSHIP_STATUS_COMPLICATED  = 5;
+}
+
+enum PrivacyLevel {
+  PRIVACY_LEVEL_UNSPECIFIED  = 0;
+  PRIVACY_LEVEL_PUBLIC       = 1; // everyone
+  PRIVACY_LEVEL_FRIENDS      = 2; // friends only
+  PRIVACY_LEVEL_FRIENDS_OF_F = 3; // friends of friends
+  PRIVACY_LEVEL_PRIVATE      = 4; // only me
+}
+
+enum FriendRequestStatus {
+  FRIEND_REQUEST_STATUS_UNSPECIFIED = 0;
+  FRIEND_REQUEST_STATUS_PENDING     = 1;
+  FRIEND_REQUEST_STATUS_ACCEPTED    = 2;
+  FRIEND_REQUEST_STATUS_DECLINED    = 3;
+  FRIEND_REQUEST_STATUS_CANCELLED   = 4;
+  FRIEND_REQUEST_STATUS_BLOCKED     = 5;
+}
+
+enum FollowStatus {
+  FOLLOW_STATUS_UNSPECIFIED = 0;
+  FOLLOW_STATUS_FOLLOWING   = 1;
+  FOLLOW_STATUS_NOT_FOLLOWING = 2;
+  FOLLOW_STATUS_REQUESTED   = 3; // for private accounts
+}
+
+enum OnlineStatus {
+  ONLINE_STATUS_UNSPECIFIED = 0;
+  ONLINE_STATUS_ONLINE      = 1;
+  ONLINE_STATUS_AWAY        = 2;
+  ONLINE_STATUS_DO_NOT_D    = 3; // Do Not Disturb
+  ONLINE_STATUS_OFFLINE     = 4;
+}
+
+enum ReportReason {
+  REPORT_REASON_UNSPECIFIED   = 0;
+  REPORT_REASON_SPAM          = 1;
+  REPORT_REASON_HARASSMENT    = 2;
+  REPORT_REASON_FAKE_ACCOUNT  = 3;
+  REPORT_REASON_HATE_SPEECH   = 4;
+  REPORT_REASON_NUDITY        = 5;
+  REPORT_REASON_VIOLENCE      = 6;
+  REPORT_REASON_OTHER         = 7;
+}
+
+enum NotificationChannel {
+  NOTIFICATION_CHANNEL_UNSPECIFIED = 0;
+  NOTIFICATION_CHANNEL_IN_APP      = 1;
+  NOTIFICATION_CHANNEL_EMAIL       = 2;
+  NOTIFICATION_CHANNEL_PUSH        = 3;
+  NOTIFICATION_CHANNEL_SMS         = 4;
+}
+
+enum AccountStatus {
+  ACCOUNT_STATUS_UNSPECIFIED  = 0;
+  ACCOUNT_STATUS_ACTIVE       = 1;
+  ACCOUNT_STATUS_DEACTIVATED  = 2;
+  ACCOUNT_STATUS_SUSPENDED    = 3;
+  ACCOUNT_STATUS_DELETED      = 4;
+}
+
+// ===========================================================================
+// Core sub-messages
+// ===========================================================================
+
+message Media {
+  string url        = 1;
+  string key        = 2; // storage object key
+  int64  size_bytes = 3;
+  string mime_type  = 4;
+  int32  width      = 5;
+  int32  height     = 6;
+}
+
+message Location {
+  string city    = 1;
+  string state   = 2;
+  string country = 3;
+  double lat     = 4;
+  double lng     = 5;
+}
+
+message Education {
+  string school     = 1;
+  string degree     = 2;
+  string field      = 3;
+  int32  start_year = 4;
+  int32  end_year   = 5;
+  bool   current    = 6;
+}
+
+message WorkExperience {
+  string company    = 1;
+  string position   = 2;
+  string city       = 3;
+  int32  start_year = 4;
+  int32  end_year   = 5;
+  bool   current    = 6;
+}
+
+message SocialLink {
+  string platform = 1; // e.g. "twitter", "instagram", "linkedin"
+  string url      = 2;
+}
+
+message PrivacySettings {
+  PrivacyLevel profile_visibility    = 1;
+  PrivacyLevel email_visibility      = 2;
+  PrivacyLevel phone_visibility      = 3;
+  PrivacyLevel birthday_visibility   = 4;
+  PrivacyLevel friends_list_visibility = 5;
+  PrivacyLevel posts_default         = 6;
+  PrivacyLevel tagged_posts          = 7;
+  bool         allow_friend_requests = 8;
+  bool         allow_follows         = 9;
+  bool         allow_search_by_email = 10;
+  bool         allow_search_by_phone = 11;
+  bool         show_online_status    = 12;
+  bool         show_last_seen        = 13;
+  bool         read_receipts         = 14;
+}
+
+message NotificationPreferences {
+  bool likes_on_posts     = 1;
+  bool comments_on_posts  = 2;
+  bool friend_requests    = 3;
+  bool mentions           = 4;
+  bool new_followers      = 5;
+  bool messages           = 6;
+  bool birthday_reminders = 7;
+  bool event_invites      = 8;
+  bool stories            = 9;
+  bool live_videos        = 10;
+  repeated NotificationChannel channels = 11;
+}
+
+// ===========================================================================
+// UserProfile — the full, rich profile object
+// ===========================================================================
+
+message UserProfile {
+  string  user_id      = 1;
+  string  username     = 2;
+  string  email        = 3;
+  string  name         = 4;
+  string  display_name = 5;
+  string  bio          = 6;
+  Media   avatar       = 7;
+  Media   cover_photo  = 8;
+  string  website      = 9;
+  string  phone        = 10;
+  Gender  gender       = 11;
+  google.protobuf.Timestamp birthday = 12;
+  RelationshipStatus relationship_status = 13;
+  Location current_location = 14;
+  Location hometown         = 15;
+  repeated Education      education   = 16;
+  repeated WorkExperience work        = 17;
+  repeated SocialLink     social_links = 18;
+  repeated string         interests   = 19; // tags/topics
+  int64  followers_count = 20;
+  int64  following_count = 21;
+  int64  friends_count   = 22;
+  int64  posts_count     = 23;
+  bool   is_verified     = 24;
+  bool   is_private      = 25;
+  AccountStatus account_status = 26;
+  OnlineStatus  online_status  = 27;
+  google.protobuf.Timestamp last_seen_at  = 28;
+  google.protobuf.Timestamp created_at    = 29;
+  google.protobuf.Timestamp updated_at    = 30;
+  // Viewer-relative fields (populated when caller is authenticated)
+  FriendRequestStatus friend_request_status = 31;
+  FollowStatus        follow_status         = 32;
+  bool                is_blocked            = 33;
+  bool                is_blocking_me        = 34;
+}
+
+// Lightweight card used in lists / search results
+message UserCard {
+  string user_id      = 1;
+  string username     = 2;
+  string name         = 3;
+  string display_name = 4;
+  Media  avatar       = 5;
+  bool   is_verified  = 6;
+  bool   is_private   = 7;
+  int64  mutual_friends_count = 8;
+  FriendRequestStatus friend_request_status = 9;
+  FollowStatus        follow_status         = 10;
+  OnlineStatus        online_status         = 11;
+}
+
+// ===========================================================================
+// Get / Update Profile
+// ===========================================================================
+
+message GetUserProfileRequest {
+  string user_id  = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message GetUserProfileResponse {
+  UserProfile profile = 1;
+}
+
+message GetMyProfileRequest {}
+
+message GetMyProfileResponse {
+  UserProfile      profile               = 1;
+  PrivacySettings  privacy_settings      = 2;
+  NotificationPreferences notifications  = 3;
+}
+
+message UpdateProfileRequest {
+  optional string display_name = 1 [
+    (buf.validate.field).string.max_len = 100
+  ];
+  optional string bio = 2 [
+    (buf.validate.field).string.max_len = 500
+  ];
+  optional string username = 3 [
+    (buf.validate.field).string.min_len = 3,
+    (buf.validate.field).string.max_len = 30,
+    (buf.validate.field).string.pattern = "^[a-zA-Z0-9_.]+$"
+  ];
+  optional string website = 4 [
+    (buf.validate.field).string.max_len = 200
+  ];
+  optional string phone = 5 [
+    (buf.validate.field).string.max_len = 20
+  ];
+  optional Gender  gender              = 6;
+  optional string  birthday            = 7; // ISO date YYYY-MM-DD
+  optional RelationshipStatus relationship_status = 8;
+  optional Location current_location   = 9;
+  optional Location hometown           = 10;
+  repeated Education      education    = 11;
+  repeated WorkExperience work         = 12;
+  repeated SocialLink     social_links = 13;
+  repeated string         interests    = 14;
+  optional bool    is_private          = 15;
+  // field_mask controls which fields to update
+  google.protobuf.FieldMask update_mask = 16;
+}
+
+message UpdateProfileResponse {
+  UserProfile profile = 1;
+}
+
+message UploadAvatarRequest {
+  bytes  data      = 1 [(buf.validate.field).bytes.max_len = 5242880]; // 5 MB
+  string mime_type = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+message UploadAvatarResponse {
+  Media avatar = 1;
+}
+
+message UploadCoverPhotoRequest {
+  bytes  data      = 1 [(buf.validate.field).bytes.max_len = 10485760]; // 10 MB
+  string mime_type = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+message UploadCoverPhotoResponse {
+  Media cover_photo = 1;
+}
+
+// ===========================================================================
+// Friends
+// ===========================================================================
+
+message SendFriendRequestRequest {
+  string to_user_id = 1 [(buf.validate.field).string.min_len = 1];
+  optional string message = 2 [(buf.validate.field).string.max_len = 200];
+}
+
+message SendFriendRequestResponse {
+  string              request_id = 1;
+  FriendRequestStatus status     = 2;
+  google.protobuf.Timestamp sent_at = 3;
+}
+
+message RespondFriendRequestRequest {
+  string request_id = 1 [(buf.validate.field).string.min_len = 1];
+  bool   accept     = 2;
+}
+
+message RespondFriendRequestResponse {
+  FriendRequestStatus status    = 1;
+  google.protobuf.Timestamp updated_at = 2;
+}
+
+message CancelFriendRequestRequest {
+  string request_id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message CancelFriendRequestResponse {
+  bool success = 1;
+}
+
+message UnfriendRequest {
+  string user_id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message UnfriendResponse {
+  bool success = 1;
+}
+
+message ListFriendsRequest {
+  string user_id   = 1 [(buf.validate.field).string.min_len = 1];
+  int32  page_size  = 2 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 100];
+  string page_token = 3;
+  optional string query = 4; // search within friends
+}
+
+message ListFriendsResponse {
+  repeated UserCard friends          = 1;
+  string            next_page_token  = 2;
+  int64             total_count      = 3;
+}
+
+message ListFriendRequestsRequest {
+  bool   incoming   = 1; // true = received, false = sent
+  int32  page_size  = 2 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 50];
+  string page_token = 3;
+}
+
+message FriendRequestItem {
+  string              request_id = 1;
+  UserCard            user       = 2; // sender or receiver depending on context
+  FriendRequestStatus status     = 3;
+  optional string     message    = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message ListFriendRequestsResponse {
+  repeated FriendRequestItem requests       = 1;
+  string                     next_page_token = 2;
+  int64                      total_count    = 3;
+}
+
+message ListMutualFriendsRequest {
+  string user_id   = 1 [(buf.validate.field).string.min_len = 1];
+  int32  page_size  = 2 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 50];
+  string page_token = 3;
+}
+
+message ListMutualFriendsResponse {
+  repeated UserCard mutual_friends   = 1;
+  string            next_page_token  = 2;
+  int64             total_count      = 3;
+}
+
+// ===========================================================================
+// Follow / Unfollow
+// ===========================================================================
+
+message FollowUserRequest {
+  string user_id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message FollowUserResponse {
+  FollowStatus status     = 1;
+  google.protobuf.Timestamp followed_at = 2;
+}
+
+message UnfollowUserRequest {
+  string user_id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message UnfollowUserResponse {
+  bool success = 1;
+}
+
+message ListFollowersRequest {
+  string user_id   = 1 [(buf.validate.field).string.min_len = 1];
+  int32  page_size  = 2 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 100];
+  string page_token = 3;
+}
+
+message ListFollowersResponse {
+  repeated UserCard followers       = 1;
+  string            next_page_token = 2;
+  int64             total_count     = 3;
+}
+
+message ListFollowingRequest {
+  string user_id   = 1 [(buf.validate.field).string.min_len = 1];
+  int32  page_size  = 2 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 100];
+  string page_token = 3;
+}
+
+message ListFollowingResponse {
+  repeated UserCard following       = 1;
+  string            next_page_token = 2;
+  int64             total_count     = 3;
+}
+
+message RemoveFollowerRequest {
+  string follower_user_id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message RemoveFollowerResponse {
+  bool success = 1;
+}
+
+// ===========================================================================
+// Block / Unblock
+// ===========================================================================
+
+message BlockUserRequest {
+  string user_id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message BlockUserResponse {
+  bool                      success    = 1;
+  google.protobuf.Timestamp blocked_at = 2;
+}
+
+message UnblockUserRequest {
+  string user_id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message UnblockUserResponse {
+  bool success = 1;
+}
+
+message ListBlockedUsersRequest {
+  int32  page_size  = 1 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 100];
+  string page_token = 2;
+}
+
+message BlockedUserItem {
+  UserCard                  user       = 1;
+  google.protobuf.Timestamp blocked_at = 2;
+}
+
+message ListBlockedUsersResponse {
+  repeated BlockedUserItem blocked_users   = 1;
+  string                   next_page_token = 2;
+}
+
+// ===========================================================================
+// Report
+// ===========================================================================
+
+message ReportUserRequest {
+  string       user_id     = 1 [(buf.validate.field).string.min_len = 1];
+  ReportReason reason      = 2 [(buf.validate.field).enum.defined_only = true];
+  optional string details  = 3 [(buf.validate.field).string.max_len = 1000];
+}
+
+message ReportUserResponse {
+  string report_id = 1;
+  bool   success   = 2;
+}
+
+// ===========================================================================
+// Search
+// ===========================================================================
+
+message SearchUsersRequest {
+  string query     = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 100];
+  int32  page_size  = 2 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 50];
+  string page_token = 3;
+  optional bool friends_only = 4;
+}
+
+message SearchUsersResponse {
+  repeated UserCard users          = 1;
+  string            next_page_token = 2;
+  int64             total_count    = 3;
+}
+
+// ===========================================================================
+// Suggestions (People You May Know)
+// ===========================================================================
+
+message GetFriendSuggestionsRequest {
+  int32  page_size  = 1 [
+    (buf.validate.field).int32.gte = 1,
+    (buf.validate.field).int32.lte = 50
+  ];
+  string page_token = 2;
+}
+
+message SuggestionItem {
+  UserCard user          = 1;
+  int64    mutual_count  = 2;
+  string   reason        = 3; // e.g., "3 mutual friends", "from your contacts"
+}
+
+message GetFriendSuggestionsResponse {
+  repeated SuggestionItem suggestions     = 1;
+  string                  next_page_token = 2;
+}
+
+message DismissSuggestionRequest {
+  string user_id = 1 [(buf.validate.field).string.min_len = 1];
+}
+
+message DismissSuggestionResponse {
+  bool success = 1;
+}
+
+// ===========================================================================
+// Privacy & Notification Settings
+// ===========================================================================
+
+message UpdatePrivacySettingsRequest {
+  PrivacySettings settings    = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message UpdatePrivacySettingsResponse {
+  PrivacySettings settings = 1;
+}
+
+message GetPrivacySettingsRequest {}
+
+message GetPrivacySettingsResponse {
+  PrivacySettings settings = 1;
+}
+
+message UpdateNotificationPreferencesRequest {
+  NotificationPreferences preferences = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message UpdateNotificationPreferencesResponse {
+  NotificationPreferences preferences = 1;
+}
+
+// ===========================================================================
+// Online Presence
+// ===========================================================================
+
+message UpdateOnlineStatusRequest {
+  OnlineStatus status = 1 [(buf.validate.field).enum.defined_only = true];
+}
+
+message UpdateOnlineStatusResponse {
+  OnlineStatus              status     = 1;
+  google.protobuf.Timestamp updated_at = 2;
+}
+
+message GetOnlineStatusRequest {
+  repeated string user_ids = 1 [
+    (buf.validate.field).repeated.min_items = 1,
+    (buf.validate.field).repeated.max_items = 200
+  ];
+}
+
+message UserOnlineStatus {
+  string                    user_id    = 1;
+  OnlineStatus              status     = 2;
+  google.protobuf.Timestamp last_seen_at = 3;
+}
+
+message GetOnlineStatusResponse {
+  repeated UserOnlineStatus statuses = 1;
+}
+
+// ===========================================================================
+// Account Management
+// ===========================================================================
+
+message DeactivateAccountRequest {
+  string reason   = 1 [(buf.validate.field).string.max_len = 500];
+  string password = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+message DeactivateAccountResponse {
+  bool                      success        = 1;
+  google.protobuf.Timestamp deactivated_at = 2;
+}
+
+message ReactivateAccountRequest {
+  // Authenticated via token from login flow
+}
+
+message ReactivateAccountResponse {
+  bool success = 1;
+}
+
+message DeleteAccountRequest {
+  string password         = 1 [(buf.validate.field).string.min_len = 1];
+  string confirmation     = 2 [(buf.validate.field).string.const = "DELETE MY ACCOUNT"];
+}
+
+message DeleteAccountResponse {
+  bool                      success    = 1;
+  google.protobuf.Timestamp deleted_at = 2;
+}
+
+// ===========================================================================
+// Service
+// ===========================================================================
+
+service UserService {
+  // ── Profile ─────────────────────────────────────────────────────────────
+  rpc GetUserProfile   (GetUserProfileRequest)   returns (GetUserProfileResponse)   {}
+  rpc GetMyProfile     (GetMyProfileRequest)     returns (GetMyProfileResponse)     {}
+  rpc UpdateProfile    (UpdateProfileRequest)    returns (UpdateProfileResponse)    {}
+  rpc UploadAvatar     (UploadAvatarRequest)     returns (UploadAvatarResponse)     {}
+  rpc UploadCoverPhoto (UploadCoverPhotoRequest) returns (UploadCoverPhotoResponse) {}
+
+  // ── Friends ──────────────────────────────────────────────────────────────
+  rpc SendFriendRequest    (SendFriendRequestRequest)    returns (SendFriendRequestResponse)    {}
+  rpc RespondFriendRequest (RespondFriendRequestRequest) returns (RespondFriendRequestResponse) {}
+  rpc CancelFriendRequest  (CancelFriendRequestRequest)  returns (CancelFriendRequestResponse)  {}
+  rpc Unfriend             (UnfriendRequest)             returns (UnfriendResponse)             {}
+  rpc ListFriends          (ListFriendsRequest)          returns (ListFriendsResponse)          {}
+  rpc ListFriendRequests   (ListFriendRequestsRequest)   returns (ListFriendRequestsResponse)   {}
+  rpc ListMutualFriends    (ListMutualFriendsRequest)    returns (ListMutualFriendsResponse)    {}
+
+  // ── Follow ───────────────────────────────────────────────────────────────
+  rpc FollowUser      (FollowUserRequest)      returns (FollowUserResponse)      {}
+  rpc UnfollowUser    (UnfollowUserRequest)    returns (UnfollowUserResponse)    {}
+  rpc RemoveFollower  (RemoveFollowerRequest)  returns (RemoveFollowerResponse)  {}
+  rpc ListFollowers   (ListFollowersRequest)   returns (ListFollowersResponse)   {}
+  rpc ListFollowing   (ListFollowingRequest)   returns (ListFollowingResponse)   {}
+
+  // ── Block / Report ───────────────────────────────────────────────────────
+  rpc BlockUser        (BlockUserRequest)        returns (BlockUserResponse)        {}
+  rpc UnblockUser      (UnblockUserRequest)      returns (UnblockUserResponse)      {}
+  rpc ListBlockedUsers (ListBlockedUsersRequest) returns (ListBlockedUsersResponse) {}
+  rpc ReportUser       (ReportUserRequest)       returns (ReportUserResponse)       {}
+
+  // ── Discovery ────────────────────────────────────────────────────────────
+  rpc SearchUsers           (SearchUsersRequest)           returns (SearchUsersResponse)           {}
+  rpc GetFriendSuggestions  (GetFriendSuggestionsRequest)  returns (GetFriendSuggestionsResponse)  {}
+  rpc DismissSuggestion     (DismissSuggestionRequest)     returns (DismissSuggestionResponse)     {}
+
+  // ── Settings ─────────────────────────────────────────────────────────────
+  rpc GetPrivacySettings             (GetPrivacySettingsRequest)             returns (GetPrivacySettingsResponse)             {}
+  rpc UpdatePrivacySettings          (UpdatePrivacySettingsRequest)          returns (UpdatePrivacySettingsResponse)          {}
+  rpc UpdateNotificationPreferences  (UpdateNotificationPreferencesRequest)  returns (UpdateNotificationPreferencesResponse)  {}
+
+  // ── Presence ─────────────────────────────────────────────────────────────
+  rpc UpdateOnlineStatus (UpdateOnlineStatusRequest) returns (UpdateOnlineStatusResponse) {}
+  rpc GetOnlineStatus    (GetOnlineStatusRequest)    returns (GetOnlineStatusResponse)    {}
+
+  // ── Account ──────────────────────────────────────────────────────────────
+  rpc DeactivateAccount (DeactivateAccountRequest) returns (DeactivateAccountResponse) {}
+  rpc ReactivateAccount (ReactivateAccountRequest) returns (ReactivateAccountResponse) {}
+  rpc DeleteAccount     (DeleteAccountRequest)     returns (DeleteAccountResponse)     {}
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@repo/auth-service",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "eslint": "^9.39.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "@repo/protos": "*",
+    "@bufbuild/buf": "^1.72.0",
+    "@bufbuild/protobuf": "^2.12.1",
+    "@bufbuild/protoc-gen-es": "^2.12.1",
+    "@connectrpc/connect": "^2.1.2",
+    "@connectrpc/validate": "^0.2.0"
+  }
+}

@@ -1,0 +1,219 @@
+syntax = "proto3";
+
+package auth.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/sa3akash/my-app-monorepo/proto/auth/v1;authv1";
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  USER_ROLE_UNSPECIFIED = 0;
+  USER_ROLE_USER        = 1;
+  USER_ROLE_ADMIN       = 2;
+  USER_ROLE_MODERATOR   = 3;
+}
+
+enum TokenType {
+  TOKEN_TYPE_UNSPECIFIED = 0;
+  TOKEN_TYPE_ACCESS      = 1;
+  TOKEN_TYPE_REFRESH     = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Register
+// ---------------------------------------------------------------------------
+
+message RegisterRequest {
+  string email = 1 [
+    (buf.validate.field).string.email = true
+  ];
+  string password = 2 [
+    (buf.validate.field).string.min_len = 8,
+    (buf.validate.field).string.max_len = 128,
+    (buf.validate.field).string.pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*$"
+  ];
+  string name = 3 [
+    (buf.validate.field).string.min_len = 2,
+    (buf.validate.field).string.max_len = 100
+  ];
+  optional string display_name = 4 [
+    (buf.validate.field).string.max_len = 100
+  ];
+}
+
+message RegisterResponse {
+  string user_id        = 1;
+  string email          = 2;
+  string name           = 3;
+  string display_name   = 4;
+  UserRole role         = 5;
+  string access_token   = 6;
+  string refresh_token  = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+// ---------------------------------------------------------------------------
+// Login
+// ---------------------------------------------------------------------------
+
+message LoginRequest {
+  string email = 1 [
+    (buf.validate.field).string.email = true
+  ];
+  string password = 2 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 128
+  ];
+}
+
+message LoginResponse {
+  string user_id        = 1;
+  string email          = 2;
+  string name           = 3;
+  string display_name   = 4;
+  UserRole role         = 5;
+  string access_token   = 6;
+  string refresh_token  = 7;
+  google.protobuf.Timestamp last_login_at = 8;
+}
+
+// ---------------------------------------------------------------------------
+// Refresh Token
+// ---------------------------------------------------------------------------
+
+message RefreshTokenRequest {
+  string refresh_token = 1 [
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message RefreshTokenResponse {
+  string access_token   = 1;
+  string refresh_token  = 2;
+  int64  expires_in     = 3; // seconds until access_token expiry
+}
+
+// ---------------------------------------------------------------------------
+// Logout
+// ---------------------------------------------------------------------------
+
+message LogoutRequest {
+  string refresh_token = 1 [
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message LogoutResponse {
+  bool success = 1;
+}
+
+// ---------------------------------------------------------------------------
+// Forgot / Reset Password
+// ---------------------------------------------------------------------------
+
+message ForgotPasswordRequest {
+  string email = 1 [
+    (buf.validate.field).string.email = true
+  ];
+}
+
+message ForgotPasswordResponse {
+  bool   success = 1;
+  string message = 2; // user-facing message (e.g., "Check your inbox")
+}
+
+message ResetPasswordRequest {
+  string token = 1 [
+    (buf.validate.field).string.min_len = 1
+  ];
+  string new_password = 2 [
+    (buf.validate.field).string.min_len = 8,
+    (buf.validate.field).string.max_len = 128,
+    (buf.validate.field).string.pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*$"
+  ];
+}
+
+message ResetPasswordResponse {
+  bool   success = 1;
+  string message = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Verify Email
+// ---------------------------------------------------------------------------
+
+message VerifyEmailRequest {
+  string token = 1 [
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message VerifyEmailResponse {
+  bool   success = 1;
+  string message = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Get Current User (Me)
+// ---------------------------------------------------------------------------
+
+message GetMeRequest {
+  // Token is passed via HTTP / RPC metadata (Authorization header).
+  // No body fields required.
+}
+
+message GetMeResponse {
+  string user_id        = 1;
+  string email          = 2;
+  string name           = 3;
+  string display_name   = 4;
+  UserRole role         = 5;
+  bool   email_verified = 6;
+  google.protobuf.Timestamp created_at  = 7;
+  google.protobuf.Timestamp updated_at  = 8;
+}
+
+// ---------------------------------------------------------------------------
+// Change Password
+// ---------------------------------------------------------------------------
+
+message ChangePasswordRequest {
+  string current_password = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 128
+  ];
+  string new_password = 2 [
+    (buf.validate.field).string.min_len = 8,
+    (buf.validate.field).string.max_len = 128,
+    (buf.validate.field).string.pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*$"
+  ];
+}
+
+message ChangePasswordResponse {
+  bool   success = 1;
+  string message = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Service
+// ---------------------------------------------------------------------------
+
+service AuthService {
+  // Public endpoints
+  rpc Register       (RegisterRequest)       returns (RegisterResponse)       {}
+  rpc Login          (LoginRequest)          returns (LoginResponse)          {}
+  rpc RefreshToken   (RefreshTokenRequest)   returns (RefreshTokenResponse)   {}
+  rpc ForgotPassword (ForgotPasswordRequest) returns (ForgotPasswordResponse) {}
+  rpc ResetPassword  (ResetPasswordRequest)  returns (ResetPasswordResponse)  {}
+  rpc VerifyEmail    (VerifyEmailRequest)    returns (VerifyEmailResponse)    {}
+
+  // Authenticated endpoints (require Authorization header)
+  rpc Logout         (LogoutRequest)         returns (LogoutResponse)         {}
+  rpc GetMe          (GetMeRequest)          returns (GetMeResponse)          {}
+  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse) {}
+}
