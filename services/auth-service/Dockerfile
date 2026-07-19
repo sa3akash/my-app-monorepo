@@ -13,7 +13,7 @@ RUN bun install --frozen-lockfile
 
 # Set environment and build the auth-service
 ENV NODE_ENV=production
-RUN bunx turbo run build --filter=./services/auth-service
+RUN cd /services/auth-service && bun run build
 
 # --- PRODUCTION DEPENDENCIES CLEANING ---
 # Instead of doing a separate, broken multi-stage prod install, 
