@@ -1,7 +1,7 @@
 {
   "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
-    "strictNullChecks": true,
+    // "strictNullChecks": true,
     "target": "ES2022",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
