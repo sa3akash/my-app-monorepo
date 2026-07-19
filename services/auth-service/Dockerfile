@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 # this will cache them and speed up future builds
 FROM base AS install
 RUN mkdir -p /temp/dev
-COPY package.json bun.lock /temp/dev/
+COPY package.json bun.lock turbo.json /temp/dev/
 COPY services/auth-service/package.json /temp/dev/services/auth-service/
 COPY packages/protos/package.json /temp/dev/packages/protos/
 COPY packages/eslint-config/package.json /temp/dev/packages/eslint-config/
@@ -17,7 +17,7 @@ RUN cd /temp/dev && bun install --frozen-lockfile
 
 # install with --production (exclude devDependencies)
 RUN mkdir -p /temp/prod
-COPY package.json bun.lock /temp/prod/
+COPY package.json bun.lock turbo.json /temp/prod/
 COPY services/auth-service/package.json /temp/prod/services/auth-service/
 COPY packages/protos/package.json /temp/prod/packages/protos/
 RUN cd /temp/prod && bun install --frozen-lockfile --production
