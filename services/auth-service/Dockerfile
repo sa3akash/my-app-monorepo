@@ -13,7 +13,7 @@ COPY packages/protos/ /temp/dev/packages/protos/
 COPY packages/eslint-config/ /temp/dev/packages/eslint-config/
 COPY packages/typescript-config/ /temp/dev/packages/typescript-config/
 
-RUN cd /temp/dev && bun install --frozen-lockfile
+RUN cd /temp/dev/services/auth-service && bun install --frozen-lockfile
 
 # install with --production (exclude devDependencies)
 RUN mkdir -p /temp/prod
