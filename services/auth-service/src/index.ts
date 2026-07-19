@@ -1,14 +1,16 @@
 import { connectNodeAdapter } from "@connectrpc/connect-node";
 import { AuthService } from "@repo/protos/gen/ts/auth/v1/auth_pb";
+import { createValidateInterceptor } from "@connectrpc/validate";
 
 import { authHandler } from "./handlers/auth.handler";
+import { globalLoggerInterceptor } from "interceptors/logger.interceptor";
 
-const AUTH_PORT = process.env.PORT || 6001;
+const AUTH_PORT = process.env.AUTH_PORT || 6001;
 
 async function main() {
   // Instantiate the ConnectRPC router adapter
   const adapter = connectNodeAdapter({
-    interceptors: [],
+    interceptors: [createValidateInterceptor(), globalLoggerInterceptor],
     routes: (router) => {
       router.service(AuthService, authHandler);
     },

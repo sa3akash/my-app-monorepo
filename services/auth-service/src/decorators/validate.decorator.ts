@@ -3,8 +3,8 @@ import { ZodError, formatError, type ZodJSONSchema } from "zod";
 
 export function Validate(schema: ZodJSONSchema) {
   return function (
-    target: any,
-    propertyKey: string,
+    _target: any,
+    _propertyKey: string,
     descriptor: PropertyDescriptor,
   ) {
     const originalMethod = descriptor.value;

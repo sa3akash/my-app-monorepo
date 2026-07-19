@@ -2,49 +2,46 @@ import {
   Code,
   ConnectError,
   ServiceImpl,
-  type HandlerContext,
 } from "@connectrpc/connect";
 import { type AuthService } from "@repo/protos/gen/ts/auth/v1/auth_pb";
-import { Authorize } from "decorators/authorize.decorator";
-import { Validate } from "decorators/validate.decorator";
 
 export const authHandler: ServiceImpl<typeof AuthService> = {
-  register(request, context) {
+  register(request, _context) {
     console.log("Register request received");
     if (!request.email) {
       throw new ConnectError("Email is required", Code.InvalidArgument);
     }
     return {};
   },
-  login(request, context) {
+  login(_request, _context) {
     console.log("Login request received");
     return {};
   },
-  refreshToken(request, context) {
+  refreshToken(_request, _context) {
     console.log("Refresh token request received");
     return {};
   },
-  forgotPassword(request, context) {
+  forgotPassword(_request, _context) {
     console.log("Forgot password request received");
     return {};
   },
-  resetPassword(request, context) {
+  resetPassword(_request, _context) {
     console.log("Reset password request received");
     return {};
   },
-  changePassword(request, context) {
+  changePassword(_request, _context) {
     console.log("Change password request received");
     return {};
   },
-  verifyEmail(request, context) {
+  verifyEmail(_request, _context) {
     console.log("Verify email request received");
     return {};
   },
-  getMe(request, context) {
+  getMe(_request, _context) {
     console.log("Get me request received");
     return {};
   },
-  logout(request, context) {
+  logout(_request, _context) {
     console.log("Logout request received");
     return {};
   },
