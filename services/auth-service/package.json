@@ -6,6 +6,7 @@
     "dev": "bun --watch src/index.ts",
     "db:generate": "bunx drizzle-kit generate",
     "db:migrate": "bunx drizzle-kit migrate",
+    "build": "tsc -p tsconfig.json",
     "lint2": "eslint . --max-warnings 0"
   },
   "devDependencies": {

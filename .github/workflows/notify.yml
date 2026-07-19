@@ -1,0 +1,38 @@
+name: Notify
+
+on:
+  workflow_call:
+    inputs:
+      status:
+        required: true
+        type: string
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --- NOTIFICATIONS (Uncomment/keep the ones you want) ---
+      
+      # - name: Notify Discord
+      #   uses: ./.github/actions/notify-discord
+      #   with:
+      #     status: ${{ inputs.status }}
+      #     webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
+
+      # - name: Notify Slack
+      #   uses: ./.github/actions/notify-slack
+      #   with:
+      #     status: ${{ inputs.status }}
+      #     webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+      # - name: Notify WhatsApp
+      #   uses: ./.github/actions/notify-whatsapp
+      #   with:
+      #     status: ${{ inputs.status }}
+      #     twilio_account_sid: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      #     twilio_auth_token: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      #     from_number: ${{ secrets.TWILIO_WHATSAPP_NUMBER }}
+      #     to_number: ${{ secrets.YOUR_WHATSAPP_NUMBER }}
