@@ -10,6 +10,8 @@ RUN mkdir -p /temp/dev
 COPY package.json bun.lock /temp/dev/
 COPY services/auth-service/package.json /temp/dev/services/auth-service/
 COPY packages/protos/package.json /temp/dev/packages/protos/
+COPY packages/eslint-config/package.json /temp/dev/packages/eslint-config/
+COPY packages/typescript-config/package.json /temp/dev/packages/typescript-config/
 
 RUN cd /temp/dev && bun install
 
@@ -18,6 +20,8 @@ RUN mkdir -p /temp/prod
 COPY package.json bun.lock /temp/prod/
 COPY services/auth-service/package.json /temp/prod/services/auth-service/
 COPY packages/protos/package.json /temp/prod/packages/protos/
+COPY packages/eslint-config/package.json /temp/prod/packages/eslint-config/
+COPY packages/typescript-config/package.json /temp/prod/packages/typescript-config/
 RUN cd /temp/prod && bun install --production
 
 # copy node_modules from temp directory
