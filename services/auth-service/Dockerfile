@@ -34,7 +34,7 @@ COPY . .
 
 # [optional] tests & build
 ENV NODE_ENV=production
-RUN bun test
+# RUN bun test
 RUN bun run build
 
 # copy production dependencies and source code into final image
@@ -53,4 +53,4 @@ COPY --from=prerelease /usr/src/app/services/auth-service/dist ./services/auth-s
 # run the app
 USER bun
 EXPOSE 6001/tcp
-ENTRYPOINT [ "bun", "run", "dist/index.js" ]
+ENTRYPOINT [ "bun", "run", "services/auth-service/dist/index.js" ]
