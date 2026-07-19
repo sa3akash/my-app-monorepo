@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 # --- INSTALL DEV DEPENDENCIES ---
 FROM base AS install
 # Copy the workspace configuration and the correct lockfile (using wildcard for bun.lockb or bun.lock)
-COPY package.json bun.lock ./
+COPY package.json bun.lock turbo.json ./
 COPY services/auth-service/package.json ./services/auth-service/
 COPY packages/protos/package.json ./packages/protos/
 COPY packages/eslint-config/package.json ./packages/eslint-config/
@@ -16,7 +16,7 @@ RUN bun install --frozen-lockfile
 
 # --- INSTALL PRODUCTION DEPENDENCIES ---
 FROM base AS install-prod
-COPY package.json bun.lock ./
+COPY package.json bun.lock turbo.json ./
 COPY services/auth-service/package.json ./services/auth-service/
 COPY packages/protos/package.json ./packages/protos/
 
