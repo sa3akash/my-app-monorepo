@@ -13,7 +13,7 @@ COPY packages/protos/package.json /temp/dev/packages/protos/
 COPY packages/eslint-config/package.json /temp/dev/packages/eslint-config/
 COPY packages/typescript-config/package.json /temp/dev/packages/typescript-config/
 
-RUN cd /temp/dev && bun install
+RUN cd /temp/dev && bun install --frozen-lockfile
 
 # install with --production (exclude devDependencies)
 RUN mkdir -p /temp/prod
@@ -22,7 +22,7 @@ COPY services/auth-service/package.json /temp/prod/services/auth-service/
 COPY packages/protos/package.json /temp/prod/packages/protos/
 COPY packages/eslint-config/package.json /temp/prod/packages/eslint-config/
 COPY packages/typescript-config/package.json /temp/prod/packages/typescript-config/
-RUN cd /temp/prod && bun install --production
+RUN cd /temp/prod && bun install --frozen-lockfile --production
 
 # copy node_modules from temp directory
 # then copy all (non-ignored) project files into the image
