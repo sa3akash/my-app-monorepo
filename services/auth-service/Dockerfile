@@ -11,14 +11,14 @@ COPY package.json bun.lock /temp/dev/
 COPY services/auth-service/package.json /temp/dev/services/auth-service/
 COPY packages/protos/package.json /temp/dev/packages/protos/
 
-RUN cd /temp/dev && bun install --frozen-lockfile
+RUN cd /temp/dev && bun install
 
 # install with --production (exclude devDependencies)
 RUN mkdir -p /temp/prod
 COPY package.json bun.lock /temp/prod/
 COPY services/auth-service/package.json /temp/prod/services/auth-service/
 COPY packages/protos/package.json /temp/prod/packages/protos/
-RUN cd /temp/prod && bun install --frozen-lockfile --production
+RUN cd /temp/prod && bun install --production
 
 # copy node_modules from temp directory
 # then copy all (non-ignored) project files into the image
