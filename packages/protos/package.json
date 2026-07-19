@@ -7,7 +7,6 @@
   },
   "scripts": {
     "generate": "bunx buf generate",
-    "lint": "bunx buf lint",
     "update": "bunx buf dep update"
   },
   "dependencies": {

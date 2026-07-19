@@ -1,14 +1,22 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
-const button = () => {
+const Button = ({ title, onPress }: { title: string; onPress: () => void }) => {
   return (
-    <View>
-      <Text>button</Text>
-    </View>
-  )
-}
+    <TouchableOpacity style={styles.button} onPress={onPress}>
+      <Text style={styles.buttonText}>{title}</Text>
+    </TouchableOpacity>
+  );
+};
 
-export default button
+export default Button;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: "#000",
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "#fff",
+  },
+});
