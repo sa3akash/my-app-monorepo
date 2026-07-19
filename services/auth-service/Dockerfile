@@ -3,8 +3,6 @@ FROM oven/bun:1-alpine AS base
 WORKDIR /usr/src/app
 
 # --- BUILD STAGE ---
-# We bring in all source files here so Bun has full visibility into 
-# the monorepo workspaces, allowing --frozen-lockfile to succeed perfectly.
 FROM base AS builder
 COPY . .
 
@@ -13,11 +11,14 @@ RUN bun install --frozen-lockfile
 
 # Set environment and build the auth-service
 ENV NODE_ENV=production
-RUN cd /services/auth-service && bun run build
 
-# --- PRODUCTION DEPENDENCIES CLEANING ---
-# Instead of doing a separate, broken multi-stage prod install, 
-# we prune the devDependencies out right here.
+# Change working directory cleanly using WORKDIR
+WORKDIR /usr/src/app/services/auth-service
+RUN bun run build
+
+# Move back to root if you need to prune all workspaces, 
+# or stay here if you only want to prune auth-service
+WORKDIR /usr/src/app
 RUN bun install --production
 
 # --- FINAL RELEASE ---
@@ -36,4 +37,6 @@ COPY --from=builder /usr/src/app/services/auth-service/dist ./services/auth-serv
 
 USER bun
 EXPOSE 6001/tcp
+
+# Adjusted to match the built location inside your WORKDIR (/usr/src/app)
 ENTRYPOINT [ "bun", "run", "services/auth-service/dist/index.js" ]
