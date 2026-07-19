@@ -2,51 +2,37 @@
 FROM oven/bun:1-alpine AS base
 WORKDIR /usr/src/app
 
-# --- INSTALL DEV DEPENDENCIES ---
-FROM base AS install
-# Copy the workspace configuration and the correct lockfile (using wildcard for bun.lockb or bun.lock)
-COPY package.json bun.lock turbo.json ./
-COPY services/auth-service/package.json ./services/auth-service/
-COPY packages/protos/package.json ./packages/protos/
-COPY packages/eslint-config/package.json ./packages/eslint-config/
-COPY packages/typescript-config/package.json ./packages/typescript-config/
+# --- BUILD STAGE ---
+# We bring in all source files here so Bun has full visibility into 
+# the monorepo workspaces, allowing --frozen-lockfile to succeed perfectly.
+FROM base AS builder
+COPY . .
 
-# Install everything including devDependencies
+# Run a clean install matching your local lockfile exactly
 RUN bun install --frozen-lockfile
 
-# --- INSTALL PRODUCTION DEPENDENCIES ---
-FROM base AS install-prod
-COPY package.json bun.lock turbo.json ./
-COPY services/auth-service/package.json ./services/auth-service/
-COPY packages/protos/package.json ./packages/protos/
-COPY packages/eslint-config/ ./packages/eslint-config/
-COPY packages/typescript-config/ ./packages/typescript-config/
-# Install only production dependencies
-RUN bun install --frozen-lockfile --production
-
-# --- BUILD STAGE ---
-FROM base AS prerelease
-COPY --from=install /usr/src/app/node_modules ./node_modules
-COPY --from=install /usr/src/app/services/auth-service/node_modules ./services/auth-service/node_modules
-COPY --from=install /usr/src/app/packages/protos/node_modules ./packages/protos/node_modules
-
-# Copy actual source code
-COPY ./services/auth-service ./services/auth-service
-COPY ./packages/protos ./packages/protos
-
+# Set environment and build the auth-service
 ENV NODE_ENV=production
-RUN bun run build
+RUN cd services/auth-service && bun run build
+
+# --- PRODUCTION DEPENDENCIES CLEANING ---
+# Instead of doing a separate, broken multi-stage prod install, 
+# we prune the devDependencies out right here.
+RUN bun install --production
 
 # --- FINAL RELEASE ---
 FROM base AS release
-COPY --from=install-prod /usr/src/app/node_modules ./node_modules
-COPY --from=install-prod /usr/src/app/services/auth-service/node_modules ./services/auth-service/node_modules
-COPY --from=install-prod /usr/src/app/packages/protos/node_modules ./packages/protos/node_modules
 
-COPY --from=prerelease /usr/src/app/package.json .
-COPY --from=prerelease /usr/src/app/services/auth-service/package.json ./services/auth-service/
-COPY --from=prerelease /usr/src/app/packages/protos/ ./packages/protos/
-COPY --from=prerelease /usr/src/app/services/auth-service/dist ./services/auth-service/dist
+# Copy over the pruned node_modules from the builder
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/services/auth-service/node_modules ./services/auth-service/node_modules
+COPY --from=builder /usr/src/app/packages/protos/node_modules ./packages/protos/node_modules
+
+# Copy over the package files and the built code
+COPY --from=builder /usr/src/app/package.json .
+COPY --from=builder /usr/src/app/services/auth-service/package.json ./services/auth-service/
+COPY --from=builder /usr/src/app/packages/protos/ ./packages/protos/
+COPY --from=builder /usr/src/app/services/auth-service/dist ./services/auth-service/dist
 
 USER bun
 EXPOSE 6001/tcp
