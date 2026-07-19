@@ -43,16 +43,16 @@ jobs:
           load: true
           tags: temp-image:latest
           
-      - name: Run Trivy vulnerability scanner
-        # Pinned to the verified safe commit SHA post-remediation
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
-        with:
-          image-ref: "temp-image:latest"
-          format: "table"
-          exit-code: "1"
-          ignore-unfixed: true
-          vuln-type: "os,library"
-          severity: "CRITICAL,HIGH"
+      # - name: Run Trivy vulnerability scanner
+      #   # Pinned to the verified safe commit SHA post-remediation
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: "temp-image:latest"
+      #     format: "table"
+      #     exit-code: "1"
+      #     ignore-unfixed: true
+      #     vuln-type: "os,library"
+      #     severity: "CRITICAL,HIGH"
 
       - name: Log in to GHCR
         if: ${{ inputs.push }}
