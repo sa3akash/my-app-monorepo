@@ -19,7 +19,8 @@ FROM base AS install-prod
 COPY package.json bun.lock turbo.json ./
 COPY services/auth-service/package.json ./services/auth-service/
 COPY packages/protos/package.json ./packages/protos/
-
+COPY packages/eslint-config/ ./packages/eslint-config/
+COPY packages/typescript-config/ ./packages/typescript-config/
 # Install only production dependencies
 RUN bun install --frozen-lockfile --production
 
