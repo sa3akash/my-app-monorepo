@@ -1,7 +1,9 @@
 # use the official Bun image
-FROM oven/bun:1 AS base
+FROM oven/bun:1-alpine AS base
 WORKDIR /usr/src/app
-
+USER root
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+USER bun
 # --- BUILD STAGE ---
 FROM base AS builder
 COPY . .
