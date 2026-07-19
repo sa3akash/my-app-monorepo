@@ -32,7 +32,8 @@ COPY --from=install /temp/dev/packages/protos/node_modules ./packages/protos/nod
 COPY --from=install /temp/dev/services/auth-service ./services/auth-service
 COPY --from=install /temp/dev/packages/protos ./packages/protos
 
-COPY . .
+COPY ./services/auth-service ./services/auth-service
+COPY ./packages/protos ./packages/protos
 
 # [optional] tests & build
 ENV NODE_ENV=production
